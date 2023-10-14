@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emojiWrapper: {
-    padding: 1,
+    padding: 3,
   },
   emoji: { color: '#000' },
 })
