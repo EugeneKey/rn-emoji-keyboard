@@ -213,12 +213,12 @@ export const EmojiCategory = React.memo(
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 10,
-    marginTop: 6,
+    paddingHorizontal: 0,
+    marginTop: 0,
   },
   sectionTitle: {
     marginTop: 12,
-    marginBottom: 6,
+    marginBottom: 0,
     marginLeft: 12,
   },
   footer: { height: 8 },
