@@ -27,11 +27,13 @@ type ProviderProps = Partial<KeyboardProps> &
   }
 
 export const KeyboardProvider: React.FC<ProviderProps> = React.memo((props) => {
-  const { width } = useWindowDimensions()
+  const [width, setWidth] = React.useState(useWindowDimensions().width)
   const [activeCategoryIndex, setActiveCategoryIndex] = React.useState(0)
   const [shouldAnimateScroll, setShouldAnimateScroll] = React.useState(true)
   const [searchPhrase, setSearchPhrase] = React.useState('')
   const { keyboardState } = useKeyboardStore()
+
+  const { height } = useWindowDimensions()
 
   const [emojiTonesData, setEmojiTonesData] = React.useState<EmojiTonesData>(null)
 
@@ -40,6 +42,28 @@ export const KeyboardProvider: React.FC<ProviderProps> = React.memo((props) => {
       width / ((props.emojiSize ? props.emojiSize : defaultKeyboardContext.emojiSize) * 1.7),
     ),
   )
+
+  // On initial render we want to display only emojis that are visible right away after keyboard open
+  // Rest of emojis are loaded after user interaction with keyboard
+  const calculateMinimalEmojisAmountToDisplay = () => {
+    const defaultHeight = props.defaultHeight || defaultKeyboardContext.defaultHeight
+    const emojiSize = props.emojiSize || defaultKeyboardContext.emojiSize
+
+    const keyboardHeightPercentage =
+      typeof defaultHeight === 'string'
+        ? defaultHeight.substring(0, defaultHeight.length - 1)
+        : defaultHeight
+
+    const keyboardHeight = height * (Number(keyboardHeightPercentage) / 100)
+
+    const minimalEmojisAmount = Math.ceil(
+      (keyboardHeight / (emojiSize * 2)) * numberOfColumns.current,
+    )
+
+    return minimalEmojisAmount + minimalEmojisAmount / numberOfColumns.current
+  }
+
+  const minimalEmojisAmountToDisplay = calculateMinimalEmojisAmountToDisplay()
 
   const generateEmojiTones = React.useCallback(
     (emoji: JsonEmoji, emojiIndex: number, emojiSizes: any) => {
@@ -118,8 +142,10 @@ export const KeyboardProvider: React.FC<ProviderProps> = React.memo((props) => {
     let data = emojisByCategory.filter((category) => {
       const title = category.title as CategoryTypes
       if (props.disabledCategories) return !props.disabledCategories.includes(title)
+
       return true
     })
+
     if (keyboardState.recentlyUsed.length && props.enableRecentlyUsed) {
       data.push({
         title: 'recently_used' as CategoryTypes,
@@ -161,12 +187,12 @@ export const KeyboardProvider: React.FC<ProviderProps> = React.memo((props) => {
     }
     return data as EmojisByCategory[]
   }, [
-    keyboardState.recentlyUsed,
+    props.emojisByCategory,
     props.enableRecentlyUsed,
     props.enableSearchBar,
     props.categoryOrder,
     props.disabledCategories,
-    props.emojisByCategory,
+    keyboardState.recentlyUsed,
     searchPhrase,
   ])
 
@@ -181,6 +207,7 @@ export const KeyboardProvider: React.FC<ProviderProps> = React.memo((props) => {
       setActiveCategoryIndex,
       numberOfColumns: numberOfColumns.current,
       width,
+      setWidth,
       searchPhrase,
       setSearchPhrase,
       renderList,
@@ -189,6 +216,7 @@ export const KeyboardProvider: React.FC<ProviderProps> = React.memo((props) => {
       emojiTonesData,
       shouldAnimateScroll,
       setShouldAnimateScroll,
+      minimalEmojisAmountToDisplay,
     }),
     [
       activeCategoryIndex,
@@ -199,6 +227,7 @@ export const KeyboardProvider: React.FC<ProviderProps> = React.memo((props) => {
       searchPhrase,
       shouldAnimateScroll,
       width,
+      minimalEmojisAmountToDisplay,
     ],
   )
   return <KeyboardContext.Provider value={value}>{props.children}</KeyboardContext.Provider>

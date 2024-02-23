@@ -93,6 +93,7 @@ export type ContextValues = {
   setActiveCategoryIndex: (index: number) => void
   numberOfColumns: number
   width: number
+  setWidth: (width: number) => void
   searchPhrase: string
   setSearchPhrase: (phrase: string) => void
   renderList: EmojisByCategory[]
@@ -102,6 +103,7 @@ export type ContextValues = {
   emojiTonesData: EmojiTonesData
   shouldAnimateScroll: boolean
   setShouldAnimateScroll: (value: boolean) => void
+  minimalEmojisAmountToDisplay: number
 }
 
 export const emptyStyles: Styles = {
@@ -179,6 +181,7 @@ export const defaultKeyboardValues: ContextValues = {
   setActiveCategoryIndex: () => {},
   numberOfColumns: 5,
   width: 0,
+  setWidth: (_width: number) => {},
   searchPhrase: '',
   setSearchPhrase: (_phrase: string) => {},
   renderList: [],
@@ -195,6 +198,7 @@ export const defaultKeyboardValues: ContextValues = {
   },
   shouldAnimateScroll: true,
   setShouldAnimateScroll: (_value: boolean) => {},
+  minimalEmojisAmountToDisplay: 50,
 }
 
 export const KeyboardContext = React.createContext<
